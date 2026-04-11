@@ -1,0 +1,3 @@
+# if STARRED flag them "Are u sure u want to delete these"
+# unsubsribe from subscriptions ? 
+# read / delete by name
