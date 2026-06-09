@@ -89,7 +89,17 @@ while True:
             print(f"{sender_num}. {sender}: {count}")
             sender_num+=1
 
-        num = int(input("Enter the number of sender you want to work with: "))
+        raw = input("Enter the number of sender you want to work with: ")
+
+        if not raw.isdigit():
+            print("That's not a number. Try again.")
+            continue   
+
+        num = int(raw)
+
+        if num < 1 or num > len(senders):
+            print("That number isn't in the list. Try again.")
+            continue
 
         curr_sender = sender_counts.most_common()[num-1]
         curr_sender_email = sender_counts.most_common()[num-1][0]
@@ -99,8 +109,18 @@ while True:
         print("1. Read")
         print("2. Archive")
         print("3. Trash")
+        print("4. Back")
 
-        action = int(input("\nChoose an action: "))
+        raw_action = input("\nChoose an action: ")
+
+        if raw_action not in ("1", "2", "3", "4"):
+            print("Invalid action. Try again.")
+            continue
+
+        if raw_action == "4":
+            continue   
+
+        action = int(raw_action)
 
         curr_sender_emails = [e for e in emails if e.sender_email == curr_sender_email]
 
