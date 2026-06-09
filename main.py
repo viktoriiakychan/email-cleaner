@@ -4,23 +4,28 @@ from googleapiclient.discovery import build
 from gmail_client import GmailClient
 import analytics
 
+def confirm_and_trash(gmail, emails_to_trash):
+    if not emails_to_trash:
+        print("Nothing to trash.")
+        return False
+
+    print(f"\nThe following {len(emails_to_trash)} emails will be moved to Trash:")
+    for e in emails_to_trash:
+        print(f"  - {e.sender_name}: {e.subject}")
+
+    confirm = input("\nTrash these? Type 'yes' to confirm: ")
+
+    if confirm.lower() == "yes":
+        ids = [e.id for e in emails_to_trash]
+        gmail.trash(ids)
+        return True
+    else:
+        print("Cancelled. Nothing was trashed.")
+        return False
+
+
 gmail = GmailClient()
-
 emails = gmail.get_emails(10)
-
-# for email in emails:
-#     print(email)
-
-# sender_counts = analytics.get_sender_counts(emails)
-# for sender, count in sender_counts.most_common():
-#     print(sender, count)
-
-# unread_count = analytics.get_unread_emails(emails)
-# print("Unread count:", unread_count)
-
-# newsletter_count = analytics.get_newsletter_count(emails)
-# print("Newsletter count: ", newsletter_count)
-
 
 while True:
     print("\n===== Menu =====")
@@ -37,8 +42,7 @@ while True:
         print("Showing newsletter count...")
         newsletter_count = analytics.get_newsletter_counts(emails)
         for sender, count in newsletter_count.most_common():
-            print(sender, count)
-        
+            print(sender, count)        
 
     elif choice == "2":
         print("Marking emails as read...")
@@ -56,28 +60,14 @@ while True:
     elif choice == "3":
         print("Archiving emails...")
         newsletter_ids = [e.id for e in emails if e.is_newsletter]
-        gmail.archive(newsletter_ids[:2])   
+        gmail.archive(newsletter_ids[:10])   
     elif choice == "4":
         print("Deleting emails...")
         
         to_trash = [e for e in emails if e.is_newsletter][:10]
 
-        if not to_trash:
-            print("No newsletters to trash.")
-        else:
-            print(f"\nThe following {len(to_trash)} emails will be moved to Trash:")
-            for e in to_trash:
-                print(f"  - {e.sender_name}: {e.subject}")
-
-            # confirmation
-            confirm = input("\nTrash these? Type 'yes' to confirm: ")
-
-            if confirm.lower() == "yes":
-                ids = [e.id for e in to_trash]
-                gmail.trash(ids)
-                emails = gmail.get_emails(10)
-            else:
-                print("Cancelled. Nothing was trashed.")
+        if confirm_and_trash(gmail, to_trash):
+            emails = gmail.get_emails(10)
 
     elif choice == "5":
         sender_counts = analytics.get_sender_counts(emails)
@@ -135,24 +125,22 @@ while True:
             emails = gmail.get_emails(10)
 
         elif action == 3:
-            to_trash = [e for e in curr_sender_emails]
+            if confirm_and_trash(gmail, curr_sender_emails):
+                emails = gmail.get_emails(10)
 
-            if not to_trash:
-                print("No newsletters to trash.")
-            else:
-                print(f"\nThe following {len(to_trash)} emails will be moved to Trash:")
-                for e in to_trash:
-                    print(f"  - {e.sender_name}: {e.subject}")
+    elif choice == "6":
+        seen_senders = set()
+        for e in emails:
+            if e.is_newsletter:
+                if e.sender_email in seen_senders:
+                    continue
+                seen_senders.add(e.sender_email)
 
-                # confirmation
-                confirm = input("\nTrash these? Type 'yes' to confirm: ")
-
-                if confirm.lower() == "yes":
-                    ids = [e.id for e in to_trash]
-                    gmail.trash(ids)
-                    emails = gmail.get_emails(10)
+                link = analytics.get_unsubscribe_link(e.unsubscribe)
+                if link:
+                    print(f"\n{e.sender_name}:\n  {link}")
                 else:
-                    print("Cancelled. Nothing was trashed.")
+                    print(f"\n{e.sender_name}: (no web unsubscribe link)")
 
     elif choice == "0":
         print("Goodbye!")

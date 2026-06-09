@@ -130,6 +130,7 @@ class GmailClient:
             subject = ""
             date = ""
             is_newsletter = False
+            unsubscribe = "" 
 
             for header in headers:
 
@@ -144,6 +145,7 @@ class GmailClient:
 
                 elif header["name"] == "List-Unsubscribe":
                     is_newsletter = True
+                    unsubscribe = header["value"]
 
 
             attachment_count, attachment_size = (
@@ -173,7 +175,8 @@ class GmailClient:
                 ),
                 attachment_count=attachment_count,
                 attachment_size=attachment_size,
-                is_newsletter = is_newsletter
+                is_newsletter = is_newsletter,
+                unsubscribe=unsubscribe
             )
 
             emails.append(email)
