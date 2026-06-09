@@ -36,3 +36,18 @@ def get_newsletter_count(emails):
             count += 1
 
     return count
+
+def get_unsubscribe_link(unsubscribe_header):
+    if not unsubscribe_header:
+        return None
+
+    parts = unsubscribe_header.split(",")
+
+    for part in parts:
+        # remove whitespace and < >
+        cleaned = part.strip().strip("<>").strip()
+
+        if cleaned.startswith("http"):
+            return cleaned
+
+    return None
