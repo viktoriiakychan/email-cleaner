@@ -223,3 +223,12 @@ class GmailClient:
             ).execute()
 
         print(f"Archived {len(email_ids)} emails.")
+
+    def trash(self, email_ids):
+        for email_id in email_ids:
+            self.service.users().messages().trash(
+                userId="me",
+                id=email_id
+            ).execute()
+
+        print(f"Moved {len(email_ids)} emails to Trash.")
