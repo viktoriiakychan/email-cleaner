@@ -13,7 +13,7 @@ from models import Email
 class GmailClient:
 
     SCOPES = [
-        "https://www.googleapis.com/auth/gmail.readonly"
+        "https://www.googleapis.com/auth/gmail.modify"
     ]
 
     def __init__(self):
@@ -203,3 +203,23 @@ class GmailClient:
                 break
 
         return emails
+
+    def mark_as_read(self, email_ids):
+        for email_id in email_ids:
+            self.service.users().messages().modify(
+                userId="me",
+                id=email_id,
+                body={"removeLabelIds": ["UNREAD"]}
+            ).execute()
+
+        print(f"Marked {len(email_ids)} emails as read.")
+
+    def archive(self, email_ids):
+        for email_id in email_ids:
+            self.service.users().messages().modify(
+                userId="me",
+                id=email_id,
+                body={"removeLabelIds": ["INBOX"]}
+            ).execute()
+
+        print(f"Archived {len(email_ids)} emails.")

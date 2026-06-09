@@ -17,6 +17,16 @@ def get_sender_counts(emails):
     
     return counter
 
+
+def get_newsletter_counts(emails):
+    counter = Counter()
+
+    for email in emails:
+        if email.is_newsletter:
+            counter[email.sender_email] += 1
+    
+    return counter
+
 def get_newsletter_count(emails):
 
     count = 0
