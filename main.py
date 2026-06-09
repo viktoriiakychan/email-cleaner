@@ -1,36 +1,22 @@
-import email_reader
-import menu
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
 
-def main():
-    while True:
-        menu.show_menu()
-        choice = input("Enter option [1-4]: ").strip()
+from gmail_client import GmailClient
+import analytics
 
-        if choice == "1":
-            print("You chose the option \"[1] - Read emails from the last N days\"\n")
+gmail = GmailClient()
 
-            days = int(input("Enter number of days: "))
-            uids = email_reader.get_emails_last_n_days(days)
-            menu.loading_bar()
-            email_reader.mark_emails_as_read(uids)
-            #print("Emails found:", uids)
+emails = gmail.get_emails(100)
 
-        elif choice == "2":
-            days = int(input("Enter number of days: "))
-            uids = email_reader.get_old_unread_emails(days)
-            print("Emails found:", uids)
+# for email in emails:
+#     print(email)
 
-        elif choice == "3":
-            sender = input("Enter sender email: ")
-            email_reader.delete_by_sender(sender)
+sender_counts = analytics.get_sender_counts(emails)
+for sender, count in sender_counts.most_common():
+    print(sender, count)
 
-        elif choice == "4":
-            print("Exiting Email Cleaner. Goodbye")
-            break
+unread_count = analytics.get_unread_emails(emails)
+print("Unread count:", unread_count)
 
-        else:
-            print("Invalid option. Try again.\n")
-
-
-if __name__ == "__main__":
-    main()
+newsletter_count = analytics.get_newsletter_count(emails)
+print("Newsletter count: ", newsletter_count)

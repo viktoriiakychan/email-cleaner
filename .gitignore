@@ -12,3 +12,7 @@ env/
 # IDE files
 .vscode/
 .idea/
+
+token.json
+credentials.json
+__pycache__/
